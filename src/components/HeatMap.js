@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import "./Heatmap.css";
 
 function getBgColor(pChange) {
   const p = parseFloat(pChange);
@@ -48,7 +49,8 @@ const BSE30_SYMBOLS = [
 function NiftyIndexBanner({ api, color = "#ff9800" }) {
   const [index, setIndex] = useState(null);
 
-  useEffect(() => {
+useEffect(() => {
+  const fetchData = () => {
     axios
       .get(api)
       .then((res) => {
@@ -56,12 +58,19 @@ function NiftyIndexBanner({ api, color = "#ff9800" }) {
         setIndex(obj);
       })
       .catch(() => setIndex(null));
-  }, [api]);
+  };
+
+  fetchData(); // initial fetch
+  const interval = setInterval(fetchData, 60000); // fetch every 1 minute
+
+  return () => clearInterval(interval); // cleanup on unmount
+}, [api]);
 
   if (!index) return null;
 
   return (
     <div
+     className="banner"
       style={{
         width: "100%",
         margin: "0 auto 10px auto",
@@ -73,7 +82,7 @@ function NiftyIndexBanner({ api, color = "#ff9800" }) {
         marginRight: "24px",
         textAlign: "center",
         fontWeight: "bold",
-        fontSize: "1.3em",
+       // fontSize: "0.9em",
       }}
     >
       {index.symbol} &nbsp; | &nbsp; {index.lastPrice} &nbsp; | &nbsp;{" "}
@@ -86,16 +95,24 @@ function BseLiveBanner() {
   const [bse, setBse] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/nse-heatmap/bselive")
-      .then((res) => setBse(res.data))
-      .catch(() => setBse(null));
+    const fetchData = () => {
+      axios
+        .get("http://localhost:5000/api/nse-heatmap/bselive")
+        .then((res) => setBse(res.data))
+        .catch(() => setBse(null));
+    };
+
+    fetchData(); // initial fetch
+    const interval = setInterval(fetchData, 60000); // fetch every 1 minute
+
+    return () => clearInterval(interval); // cleanup on unmount
   }, []);
 
   if (!bse) return null;
 
   return (
     <div
+     className="banner"
       style={{
         width: "100%",
         margin: "0 auto 10px auto",
@@ -104,9 +121,10 @@ function BseLiveBanner() {
         border: "2px solid #e65100",
         padding: "10px 0",
         textAlign: "center",
-        fontSize: "1.3em",
+        // fontSize: "0.9em",
         fontWeight: "bold",
         boxShadow: "0 2px 6px #0001",
+        marginRight: "24px",
       }}
     >
       {bse.IndexName || bse.Index_Name} &nbsp; | &nbsp; {bse.CurrValue} &nbsp; |
@@ -147,7 +165,8 @@ function Heatmap() {
   const [niftyData, setNiftyData] = useState([]);
   const [volumeFirst, setVolumeFirst] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
+  const fetchAll = () => {
     axios
       .get("http://localhost:5000/api/nse-heatmap/banknifty")
       .then((res) => setBankData(res.data))
@@ -160,7 +179,13 @@ function Heatmap() {
       .get("http://localhost:5000/api/nse-heatmap/nifty50")
       .then((res) => setNiftyData(res.data))
       .catch(() => setNiftyData([]));
-  }, []);
+  };
+
+  fetchAll(); // initial fetch
+  const interval = setInterval(fetchAll, 60000); // fetch every 1 minute
+
+  return () => clearInterval(interval); // cleanup on unmount
+}, []);
 
   // Helper to sort by totalTradedVolume present first
   const sortVolumeFirst = (arr) => {

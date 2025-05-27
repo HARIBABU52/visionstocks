@@ -197,6 +197,11 @@ app.get("/api/nse-heatmap/bselive", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+// Refresh cookie on server start
+refreshNseCookie().then(() => {
+  // Start the server only after the cookie is set
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
 });
+
