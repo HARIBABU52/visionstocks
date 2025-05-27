@@ -49,8 +49,8 @@ const BSE30_SYMBOLS = [
 function NiftyIndexBanner({ api, color = "#ff9800" }) {
   const [index, setIndex] = useState(null);
 
-useEffect(() => {
-  const fetchData = () => {
+  useEffect(() => {
+    // Always fetch once on load
     axios
       .get(api)
       .then((res) => {
@@ -58,13 +58,38 @@ useEffect(() => {
         setIndex(obj);
       })
       .catch(() => setIndex(null));
-  };
 
-  fetchData(); // initial fetch
-  const interval = setInterval(fetchData, 60000); // fetch every 1 minute
+    const fetchData = () => {
+      // Get current time in IST
+      const now = new Date();
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const ist = new Date(utc + (5.5 * 60 * 60 * 1000));
+      const day = ist.getDay(); // 0=Sunday, 1=Monday, ..., 5=Friday, 6=Saturday
+      const hour = ist.getHours();
+      const minute = ist.getMinutes();
 
-  return () => clearInterval(interval); // cleanup on unmount
-}, [api]);
+      // Only run on Monday (1) to Friday (5), and between 8:30 and 16:00 IST
+      const isMarketDay = day >= 1 && day <= 5;
+      const isMarketTime =
+        (hour > 8 && hour < 16) ||
+        (hour === 8 && minute >= 30) ||
+        (hour === 16 && minute === 0);
+
+      if (isMarketDay && isMarketTime) {
+        axios
+          .get(api)
+          .then((res) => {
+            const obj = res.data?.data?.find((d) => d.priority === 1);
+            setIndex(obj);
+          })
+          .catch(() => setIndex(null));
+      }
+    };
+
+    const interval = setInterval(fetchData, 60000); // fetch every 1 minute
+
+    return () => clearInterval(interval); // cleanup on unmount
+  }, [api]);
 
   if (!index) return null;
 
@@ -94,19 +119,41 @@ useEffect(() => {
 function BseLiveBanner() {
   const [bse, setBse] = useState(null);
 
-  useEffect(() => {
-    const fetchData = () => {
+useEffect(() => {
+  // Always fetch once on load
+  axios
+    .get("http://localhost:5000/api/nse-heatmap/bselive")
+    .then((res) => setBse(res.data))
+    .catch(() => setBse(null));
+
+  const fetchData = () => {
+    // Get current time in IST
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const ist = new Date(utc + (5.5 * 60 * 60 * 1000));
+    const day = ist.getDay(); // 0=Sunday, 1=Monday, ..., 5=Friday, 6=Saturday
+    const hour = ist.getHours();
+    const minute = ist.getMinutes();
+
+    // Only run on Monday (1) to Friday (5), and between 8:30 and 16:00 IST
+    const isMarketDay = day >= 1 && day <= 5;
+    const isMarketTime =
+      (hour > 8 && hour < 16) ||
+      (hour === 8 && minute >= 30) ||
+      (hour === 16 && minute === 0);
+
+    if (isMarketDay && isMarketTime) {
       axios
         .get("http://localhost:5000/api/nse-heatmap/bselive")
         .then((res) => setBse(res.data))
         .catch(() => setBse(null));
-    };
+    }
+  };
 
-    fetchData(); // initial fetch
-    const interval = setInterval(fetchData, 60000); // fetch every 1 minute
+  const interval = setInterval(fetchData, 60000); // fetch every 1 minute
 
-    return () => clearInterval(interval); // cleanup on unmount
-  }, []);
+  return () => clearInterval(interval); // cleanup on unmount
+}, []);
 
   if (!bse) return null;
 
@@ -166,22 +213,52 @@ function Heatmap() {
   const [volumeFirst, setVolumeFirst] = useState(false);
 
 useEffect(() => {
+  // Always fetch once on load
+  axios
+    .get("http://localhost:5000/api/nse-heatmap/banknifty")
+    .then((res) => setBankData(res.data))
+    .catch(() => setBankData([]));
+  axios
+    .get("http://localhost:5000/api/nse-heatmap/financenifty")
+    .then((res) => setFinanceData(res.data))
+    .catch(() => setFinanceData([]));
+  axios
+    .get("http://localhost:5000/api/nse-heatmap/nifty50")
+    .then((res) => setNiftyData(res.data))
+    .catch(() => setNiftyData([]));
+
   const fetchAll = () => {
-    axios
-      .get("http://localhost:5000/api/nse-heatmap/banknifty")
-      .then((res) => setBankData(res.data))
-      .catch(() => setBankData([]));
-    axios
-      .get("http://localhost:5000/api/nse-heatmap/financenifty")
-      .then((res) => setFinanceData(res.data))
-      .catch(() => setFinanceData([]));
-    axios
-      .get("http://localhost:5000/api/nse-heatmap/nifty50")
-      .then((res) => setNiftyData(res.data))
-      .catch(() => setNiftyData([]));
+    // Get current time in IST
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const ist = new Date(utc + (5.5 * 60 * 60 * 1000));
+    const day = ist.getDay(); // 0=Sunday, 1=Monday, ..., 5=Friday, 6=Saturday
+    const hour = ist.getHours();
+    const minute = ist.getMinutes();
+
+    // Only run on Monday (1) to Friday (5), and between 8:30 and 16:00 IST
+    const isMarketDay = day >= 1 && day <= 5;
+    const isMarketTime =
+      (hour > 8 && hour < 16) ||
+      (hour === 8 && minute >= 30) ||
+      (hour === 16 && minute === 0);
+
+    if (isMarketDay && isMarketTime) {
+      axios
+        .get("http://localhost:5000/api/nse-heatmap/banknifty")
+        .then((res) => setBankData(res.data))
+        .catch(() => setBankData([]));
+      axios
+        .get("http://localhost:5000/api/nse-heatmap/financenifty")
+        .then((res) => setFinanceData(res.data))
+        .catch(() => setFinanceData([]));
+      axios
+        .get("http://localhost:5000/api/nse-heatmap/nifty50")
+        .then((res) => setNiftyData(res.data))
+        .catch(() => setNiftyData([]));
+    }
   };
 
-  fetchAll(); // initial fetch
   const interval = setInterval(fetchAll, 60000); // fetch every 1 minute
 
   return () => clearInterval(interval); // cleanup on unmount
