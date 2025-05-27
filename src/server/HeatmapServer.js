@@ -38,7 +38,7 @@ refreshNseCookie();
 setInterval(refreshNseCookie, 30 * 60 * 1000);
 
 // ...existing code...
-app.get("/api/nse-heatmap/banknifty", async (req, res) => {
+app.get("/api/heatmap/banknifty", async (req, res) => {
   try {
     const response = await axios.get(
       "https://www.nseindia.com/api/heatmap-symbols?type=Sectoral%20Indices&indices=NIFTY%20BANK",
@@ -61,7 +61,7 @@ app.get("/api/nse-heatmap/banknifty", async (req, res) => {
   }
 });
 
-app.get("/api/nse-heatmap/financenifty", async (req, res) => {
+app.get("/api/heatmap/financenifty", async (req, res) => {
   try {
     const response = await axios.get(
       "https://www.nseindia.com/api/heatmap-symbols?type=Sectoral%20Indices&indices=NIFTY%20FIN%20SERVICE",
@@ -84,7 +84,7 @@ app.get("/api/nse-heatmap/financenifty", async (req, res) => {
   }
 });
 
-app.get("/api/nse-heatmap/nifty50", async (req, res) => {
+app.get("/api/heatmap/nifty50", async (req, res) => {
   try {
     const response = await axios.get(
       "https://www.nseindia.com/api/heatmap-symbols?type=Broad%20Market%20Indices&indices=NIFTY%2050",
@@ -107,7 +107,7 @@ app.get("/api/nse-heatmap/nifty50", async (req, res) => {
   }
 });
 
-app.get("/api/nse-heatmap/nifty50live", async (req, res) => {
+app.get("/api/nifty50live", async (req, res) => {
   try {
     const response = await axios.get(
       "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%2050",
@@ -130,7 +130,7 @@ app.get("/api/nse-heatmap/nifty50live", async (req, res) => {
   }
 });
 
-app.get("/api/nse-heatmap/niftybanklive", async (req, res) => {
+app.get("/api/niftybanklive", async (req, res) => {
   try {
     const response = await axios.get(
       "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20BANK",
@@ -152,7 +152,7 @@ app.get("/api/nse-heatmap/niftybanklive", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-app.get("/api/nse-heatmap/niftyfinancelive", async (req, res) => {
+app.get("/api/niftyfinancelive", async (req, res) => {
   try {
     const response = await axios.get(
       "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20FINANCIAL%20SERVICES",
@@ -175,7 +175,7 @@ app.get("/api/nse-heatmap/niftyfinancelive", async (req, res) => {
   }
 });
 
-app.get("/api/nse-heatmap/bselive", async (req, res) => {
+app.get("/api/bselive", async (req, res) => {
   try {
     const response = await axios.get(
       "https://api.bseindia.com/BseIndiaAPI/api/GetLinknew/w?code=16",
@@ -201,7 +201,7 @@ app.get("/api/nse-heatmap/bselive", async (req, res) => {
 refreshNseCookie().then(() => {
   // Start the server only after the cookie is set
   app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 });
 
