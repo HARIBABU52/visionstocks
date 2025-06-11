@@ -3,13 +3,20 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import Heatmap from './components/Heatmap';
+import Graphs from './components/graphs';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <Heatmap />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Heatmap />} />
+          <Route path="/graphs" element={<Graphs />} />
+        </Routes>
+      </BrowserRouter>
     </React.StrictMode>
   );
 } else {
