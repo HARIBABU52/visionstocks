@@ -5,6 +5,8 @@ import Graphs from  "./graphs.js";
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+
+
 function getBgColor(pChange) {
   const p = parseFloat(pChange);
   if (p >= 2) return "#06a04a"; // dark green
@@ -219,6 +221,7 @@ function Heatmap() {
   const [niftyData, setNiftyData] = useState([]);
   const [volumeFirst, setVolumeFirst] = useState(false);
 
+
 // these for points contribution:
 const [bankPoints, setBankPoints] = useState([]);
 const [financePoints, setFinancePoints] = useState([]);
@@ -226,7 +229,17 @@ const [niftyPoints, setNiftyPoints] = useState([]);
 
 const [showContributionOnly, setShowContributionOnly] = useState(false);
 
+const [graphData, setGraphData] = useState([]);
+
+
+
 useEffect(() => {
+
+
+
+
+
+
   // Always fetch once on load
   axios
     .get(`${localurl}/api/heatmap/banknifty`)
@@ -305,6 +318,22 @@ useEffect(() => {
   return () => clearInterval(interval); // cleanup on unmount
 }, []);
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/api/db/topstocks")
+      .then((res) => {
+        console.log("API response:", res.data);
+        setGraphData(res.data);
+      })
+      .catch((err) => {
+        console.error("API error:", err);
+        setGraphData([]);
+      });
+  }, []);
+
+
+
+console.log("graphdataa", graphData);
 function mergeContribution(dataArr, pointsObj) {
   const arr = Array.isArray(dataArr) ? dataArr : (dataArr ? [dataArr] : []);
   const pointsList = pointsObj?.data?.indexContributionList || [];
@@ -329,7 +358,8 @@ console.log("Finance Data with Contribution:", financeDataWithContribution);
 
 // Then use bankDataWithContribution, etc., in your rendering logic.
 
-
+  // access data http://localhost:5001/api/db/topstocks
+  
 
   // Helper to sort by totalTradedVolume present first
   const sortVolumeFirst = (arr) => {
@@ -469,8 +499,16 @@ const filteredNiftyData = showContributionOnly
 <CommonButton
   label="Graphs"
   color="#009688"
-  onClick={() => {
-    window.open('/graphs', '_blank', 'width=700,height=500');
+  onClick={async () => {
+    try {
+      const res = await axios.get("http://localhost:5001/api/db/topstocks");
+      localStorage.setItem("graphData", JSON.stringify(res.data));
+      window.open('/graphs', '_blank', 'width=700,height=500');
+    } catch (err) {
+      console.error("API error:", err);
+      localStorage.setItem("graphData", "[]");
+      window.open('/graphs', '_blank', 'width=700,height=500');
+    }
   }}
 />
 
