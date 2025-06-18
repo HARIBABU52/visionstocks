@@ -82,10 +82,10 @@ const Graphs = ({ data }) => {
       options: {
         scales: {
           y: {
-            min: -5,
-            max: 5,
+            min: -3,
+            max: 3,
             title: { display: true, text: "% Change" },
-            ticks: { callback: (v) => v + "%" },
+            ticks: { stepSize: 0.5,callback: (v) => v + "%" },
           },
           x: { title: { display: true, text: "Time" } },
         },
@@ -132,10 +132,10 @@ const Graphs = ({ data }) => {
       options: {
         scales: {
           y: {
-            min: -5,
-            max: 5,
+            min: -3,
+            max: 3,
             title: { display: true, text: "% Change" },
-            ticks: { callback: (v) => v + "%" },
+            ticks: { stepSize: 0.5, callback: (v) => v + "%" },
           },
           x: { title: { display: true, text: "Time" } },
         },
@@ -182,10 +182,10 @@ const Graphs = ({ data }) => {
       options: {
         scales: {
           y: {
-            min: -5,
-            max: 5,
+            min: -3,
+            max: 3,
             title: { display: true, text: "% Change" },
-            ticks: { callback: (v) => v + "%" },
+            ticks: { stepSize: 0.5, callback: (v) => v + "%" },
           },
           x: { title: { display: true, text: "Time" } },
         },
