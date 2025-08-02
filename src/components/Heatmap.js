@@ -487,12 +487,12 @@ const filteredNiftyData = showContributionOnly
         }}
       >
   <CommonButton
-  label={volumeFirst ? "Normal" : "Volume First (Q)"}
+  label={volumeFirst ? "% first" : "Volume First (Q)"}
   color="#1976d2"
   onClick={() => setVolumeFirst((v) => !v)}
 />
 <CommonButton
-  label={showContributionOnly ? "Show All" : "Filter with Contribution"}
+  label={showContributionOnly ? "% first " : "Filter with Contribution"}
   color="#8e24aa"
   onClick={() => setShowContributionOnly((v) => !v)}
 />
