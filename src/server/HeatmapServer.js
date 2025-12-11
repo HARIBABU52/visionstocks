@@ -45,8 +45,9 @@ async function refreshNseCookie() {
 
 // API to get heatmap data for Bank Nifty
 app.get("/api/heatmap/banknifty", async (_, res) => {
+  // If no cookie, try without it or return graceful error
   if (!cookieval) {
-    return res.status(503).json({ error: "NSE cookie not set. Please try again later." });
+    console.warn("Warning: NSE cookie not set, attempting request anyway...");
   }
   try {
     const response = await axios.get(
@@ -74,8 +75,9 @@ app.get("/api/heatmap/banknifty", async (_, res) => {
 
 // API to get heatmap data for Finance Nifty
 app.get("/api/heatmap/financenifty", async (_, res) => {
+  // If no cookie, try without it or return graceful error
   if (!cookieval) {
-    return res.status(503).json({ error: "NSE cookie not set. Please try again later." });
+    console.warn("Warning: NSE cookie not set, attempting request anyway...");
   }
   try {
     const response = await axios.get(
@@ -103,8 +105,9 @@ app.get("/api/heatmap/financenifty", async (_, res) => {
 
 // API to get heatmap data for Nifty 50
 app.get("/api/heatmap/nifty50", async (_, res) => {
+  // If no cookie, try without it or return graceful error
   if (!cookieval) {
-    return res.status(503).json({ error: "NSE cookie not set. Please try again later." });
+    console.warn("Warning: NSE cookie not set, attempting request anyway...");
   }
   try {
     const response = await axios.get(
@@ -130,8 +133,9 @@ app.get("/api/heatmap/nifty50", async (_, res) => {
 
 // API to get live data for Nifty 50
 app.get("/api/nifty50live", async (_, res) => {
+  // If no cookie, try without it or return graceful error
   if (!cookieval) {
-    return res.status(503).json({ error: "NSE cookie not set. Please try again later." });
+    console.warn("Warning: NSE cookie not set, attempting request anyway...");
   }
   try {
     const response = await axios.get(
@@ -157,8 +161,9 @@ app.get("/api/nifty50live", async (_, res) => {
 
 // API to get live data for Nifty Bank
 app.get("/api/niftybanklive", async (_, res) => {
+  // If no cookie, try without it or return graceful error
   if (!cookieval) {
-    return res.status(503).json({ error: "NSE cookie not set. Please try again later." });
+    console.warn("Warning: NSE cookie not set, attempting request anyway...");
   }
   try {
     const response = await axios.get(
@@ -184,8 +189,9 @@ app.get("/api/niftybanklive", async (_, res) => {
 
 // API to get live data for Fin Nifty
 app.get("/api/niftyfinancelive", async (_, res) => {
+  // If no cookie, try without it or return graceful error
   if (!cookieval) {
-    return res.status(503).json({ error: "NSE cookie not set. Please try again later." });
+    console.warn("Warning: NSE cookie not set, attempting request anyway...");
   }
   try {
     const response = await axios.get(

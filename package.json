@@ -28,7 +28,7 @@
     "server": "node src/server/HeatmapServer.js",
     "dbserver": "node src/server/database.js",
     "dbserver-delayed": "node -e \"setTimeout(() => require('child_process').spawn('node', ['src/server/database.js'], { stdio: 'inherit' }), 15000)\"",
-    "build": "react-scripts build",
+    "build": "react-scripts build && node -e \"try { require('child_process').execSync('npx puppeteer browsers install chrome', {stdio:'inherit'}); } catch(e) { console.warn('Puppeteer browser install skipped or failed (optional)'); }\"",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
