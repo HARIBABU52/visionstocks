@@ -72,7 +72,7 @@ function fetchAndStoreNifty50Points() {
     return;
   }
 
-  const localurl = 'https://visionstocks-7pou.onrender.com/';
+  const localurl = 'https://visionstocks-7pou.onrender.com';
   axios
     .get(`${localurl}/api/nifty50points`)
     .then((res) => {
@@ -133,7 +133,7 @@ function getTodayNifty50Points(callback) {
 const app = express();
 app.use(cors());
 
-app.get('/api/db/topstocks', (_, res) => {
+app.get(`${localurl}/api/db/topstocks`, (_, res) => {
   getTodayNifty50Points((err, rows) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     // Parse the Data field from string to JSON for each row
