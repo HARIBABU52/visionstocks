@@ -22,7 +22,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "node src/server/HeatmapServer.js",
+    "start": "concurrently \"node src/server/HeatmapServer.js\" \"npm run dbserver-delayed\""
+,
     "dev": "concurrently \"npm run react\" \"npm run server\" \"npm run dbserver-delayed\"",
     "prebuild": "node -e \"const fs=require('fs'); if(!fs.existsSync('node_modules') || !fs.existsSync('node_modules/react-scripts')){ require('child_process').execSync('npm ci', {stdio:'inherit'}); } else { console.log('node_modules and react-scripts present, skipping npm ci'); }\"",
     "react": "react-scripts start",
