@@ -16,7 +16,7 @@ function getBgColor(pChange) {
 }
 
 // Use this variable everywhere instead of hardcoding localhost
-const localurl ='http://localhost:5000';
+const localurl ='https://visionstocks-7pou.onrender.com/';
 console.log(process.env.REACT_APP_API_URL,"rul")
 
 const BSE30_SYMBOLS = [
@@ -342,7 +342,7 @@ useEffect(() => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5001/api/db/topstocks")
+      .get("https://visionstocks-7pou.onrender.com/api/db/topstocks")
       .then((res) => {
         console.log("API response:", res.data);
         setGraphData(res.data);
@@ -523,7 +523,7 @@ const filteredNiftyData = showContributionOnly
   color="#009688"
   onClick={async () => {
     try {
-      const res = await axios.get("http://localhost:5001/api/db/topstocks");
+      const res = await axios.get("https://visionstocks-7pou.onrender.com/api/db/topstocks");
       localStorage.setItem("graphData", JSON.stringify(res.data));
       window.open('/graphs', '_blank', 'width=700,height=500');
     } catch (err) {

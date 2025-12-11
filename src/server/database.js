@@ -72,7 +72,7 @@ function fetchAndStoreNifty50Points() {
     return;
   }
 
-  const localurl = 'http://localhost:5000';
+  const localurl = 'https://visionstocks-7pou.onrender.com/';
   axios
     .get(`${localurl}/api/nifty50points`)
     .then((res) => {
