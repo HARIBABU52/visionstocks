@@ -181,13 +181,32 @@ async function refreshNseCookie() {
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     );
-    await page.setExtraHTTPHeaders({ "accept-language": "en-US,en;q=0.9" });
-    await page.goto("https://www.nseindia.com", { waitUntil: "networkidle2" });
+    await page.setExtraHTTPHeaders({ 
+      "accept-language": "en-US,en;q=0.9",
+      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "cache-control": "max-age=0"
+    });
+    // Set a longer timeout and use 'domcontentloaded' instead of 'networkidle2' for faster load
+    try {
+      await page.goto("https://www.nseindia.com", { waitUntil: "domcontentloaded", timeout: 60000 });
+    } catch (navErr) {
+      console.warn('Primary navigation timeout, retrying with longer timeout...');
+      try {
+        // Retry with even more time
+        await page.goto("https://www.nseindia.com", { waitUntil: "networkidle0", timeout: 90000 });
+      } catch (retryErr) {
+        console.warn('Retry navigation also timed out. Proceeding with current cookies...');
+      }
+    }
     // Use browserContext.cookies instead of deprecated page.cookies
     const cookies = await page.browserContext().cookies();
     await browser.close();
     cookieval = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
-    console.log("NSE cookie refreshed successfully!");
+    if (cookieval) {
+      console.log("NSE cookie refreshed successfully!");
+    } else {
+      console.warn("No cookies found after navigation. NSE cookie refresh may have partially failed.");
+    }
   } catch (err) {
     console.error("Failed to refresh NSE cookie:", err.message);
     console.warn("Continuing without NSE cookie. Some APIs may be limited. Cookie will retry every 30 minutes.");
