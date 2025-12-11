@@ -152,8 +152,8 @@ app.get(`/api/db/topstocks`, (_, res) => {
 
 
 
-app.listen(5001, () => {
-  console.log('Server running on port 5001');
+app.listen(5000, () => {
+  console.log('Server running on port 5000');
 });
 
 export { insertNifty50Points, fetchAndStoreNifty50Points, getTodayNifty50Points };
