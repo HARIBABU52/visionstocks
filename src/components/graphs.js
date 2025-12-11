@@ -210,7 +210,7 @@ const Graphs = ({ data }) => {
         chartInstanceRef3.current = null;
       }
     };
-  }, [response]);
+  }, [response, chartTitle]);
 
   return (
     <div>

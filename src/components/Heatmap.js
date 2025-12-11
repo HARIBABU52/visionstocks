@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Heatmap.css";
-import Graphs from  "./graphs.js";
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 
 
