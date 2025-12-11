@@ -132,8 +132,7 @@ function getTodayNifty50Points(callback) {
 // --- API to get today's nifty50points data from the database ---
 const app = express();
 app.use(cors());
-const localurl = 'https://visionstocks-7pou.onrender.com';
-app.get(`${localurl}/api/db/topstocks`, (_, res) => {
+app.get(`/api/db/topstocks`, (_, res) => {
   getTodayNifty50Points((err, rows) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     // Parse the Data field from string to JSON for each row
