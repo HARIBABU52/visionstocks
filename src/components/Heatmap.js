@@ -16,7 +16,7 @@ function getBgColor(pChange) {
 }
 
 // Use this variable everywhere instead of hardcoding localhost
-const localurl ='https://visionstocks-7pou.onrender.com/';
+const localurl ='https://visionstocks-7pou.onrender.com';
 console.log(process.env.REACT_APP_API_URL,"rul")
 
 const BSE30_SYMBOLS = [
