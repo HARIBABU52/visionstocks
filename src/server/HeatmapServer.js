@@ -22,11 +22,19 @@ let cookieval = "";
 // Function to fetch NSE cookie using Puppeteer
 async function refreshNseCookie() {
   try {
-    const browser = await puppeteer.launch({
+    // Configure Puppeteer with proper cache and fallback paths
+    const puppeteerConfig = {
       headless: true,
-      args: ["--disable-http2"],
+      args: ["--disable-http2", "--no-sandbox", "--disable-setuid-sandbox"],
       timeout: 30000 // 30 seconds
-    });
+    };
+
+    // On Render (and similar environments), explicitly set the cache directory
+    if (process.env.RENDER === 'true' || process.env.NODE_ENV === 'production') {
+      puppeteerConfig.cacheDirectory = '/opt/render/.cache/puppeteer';
+    }
+
+    const browser = await puppeteer.launch(puppeteerConfig);
     const page = await browser.newPage();
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -37,9 +45,10 @@ async function refreshNseCookie() {
     const cookies = await page.browserContext().cookies();
     await browser.close();
     cookieval = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
-    console.log("NSE cookie refreshed!");
+    console.log("NSE cookie refreshed successfully!");
   } catch (err) {
     console.error("Failed to refresh NSE cookie:", err.message);
+    console.warn("Continuing without NSE cookie. Some APIs may be limited. Cookie will retry every 30 minutes.");
   }
 }
 
