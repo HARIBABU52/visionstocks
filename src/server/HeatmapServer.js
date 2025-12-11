@@ -18,6 +18,8 @@ app.use(cors());
 
 
 let cookieval = "";
+// Track detected Chrome/Chromium executable path for logging
+let detectedChromePath = null;
 
 // Function to fetch NSE cookie using Puppeteer
 async function refreshNseCookie() {
@@ -84,10 +86,29 @@ async function refreshNseCookie() {
     const detected = findChromeExecutable();
     if (detected) {
       puppeteerConfig.executablePath = detected;
+      detectedChromePath = detected;
       console.log('Puppeteer will use executable at', detected);
     } else if (process.env.PUPPETEER_EXECUTABLE_PATH) {
       puppeteerConfig.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      detectedChromePath = process.env.PUPPETEER_EXECUTABLE_PATH;
       console.log('Using PUPPETEER_EXECUTABLE_PATH from env:', process.env.PUPPETEER_EXECUTABLE_PATH);
+    }
+    else {
+      // Attempt a one-time runtime install of Puppeteer's Chrome if not found
+      try {
+        console.log('No Chrome executable detected. Attempting runtime install of Puppeteer browsers...');
+        require('child_process').execSync('npx puppeteer browsers install chrome', { stdio: 'inherit' });
+        const detectedAfter = findChromeExecutable();
+        if (detectedAfter) {
+          puppeteerConfig.executablePath = detectedAfter;
+          detectedChromePath = detectedAfter;
+          console.log('Puppeteer detected Chrome after runtime install at', detectedAfter);
+        } else {
+          console.warn('Runtime install completed but Chrome executable still not detected.');
+        }
+      } catch (e) {
+        console.warn('Runtime Puppeteer browser install failed:', e && e.message);
+      }
     }
 
     // On Render (and similar environments), explicitly set the cache directory
@@ -365,6 +386,7 @@ if (fs.existsSync(buildPath)) {
   setInterval(refreshNseCookie, 30 * 60 * 1000);
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log('Detected Chrome path:', detectedChromePath || 'none');
   });
 })();
 
