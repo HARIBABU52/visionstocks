@@ -2,12 +2,14 @@
   "name": "visionstocks",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.9.0",
+    "chart.js": "^4.5.1",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "puppeteer": "^24.9.0",
@@ -19,13 +21,14 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "concurrently \"npm run react\" \"npm run server\"",
+    "start": "concurrently \"npm run react\" \"npm run server\" \"npm run dbserver-delayed\"",
     "react": "react-scripts start",
     "server": "node src/server/HeatmapServer.js",
+    "dbserver": "node src/server/database.js",
+    "dbserver-delayed": "node -e \"setTimeout(() => require('child_process').spawn('node', ['src/server/database.js'], { stdio: 'inherit' }), 15000)\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-   "dbserver": "node src/server/database.js"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -44,5 +47,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

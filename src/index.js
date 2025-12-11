@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import reportWebVitals from './reportWebVitals';
-import Heatmap from './components/Heatmap';
-import Graphs from './components/graphs';
+import reportWebVitals from './reportWebVitals.js';
+import Heatmap from './components/Heatmap.js';
+import Graphs from './components/graphs.js';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 const rootElement = document.getElementById('root');

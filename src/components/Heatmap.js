@@ -216,16 +216,40 @@ function NiftyFinanceLiveBanner() {
 }
 
 function Heatmap() {
+  return (
+    <div>
+      <div
+        style={{
+          width: "100%",
+          padding: "15px",
+          backgroundColor: "#f5f5f5",
+          borderBottom: "2px solid #ddd",
+          marginBottom: "20px",
+          textAlign: "center",
+        }}
+      >
+        <h1 style={{ margin: "0", color: "#333", fontSize: "24px" }}>
+          📚 Learning Purpose
+        </h1>
+        <p style={{ margin: "5px 0 0 0", color: "#666", fontSize: "14px" }}>
+          Stock Market Heatmap and Analysis Tool
+        </p>
+      </div>
+      <HeatmapContent />
+    </div>
+  );
+}
+
+function HeatmapContent() {
   const [bankData, setBankData] = useState([]);
   const [financeData, setFinanceData] = useState([]);
   const [niftyData, setNiftyData] = useState([]);
   const [volumeFirst, setVolumeFirst] = useState(false);
 
-
-// these for points contribution:
-const [bankPoints, setBankPoints] = useState([]);
-const [financePoints, setFinancePoints] = useState([]);
-const [niftyPoints, setNiftyPoints] = useState([]);
+  // these for points contribution:
+  const [bankPoints, setBankPoints] = useState([]);
+  const [financePoints, setFinancePoints] = useState([]);
+  const [niftyPoints, setNiftyPoints] = useState([]);
 
 const [showContributionOnly, setShowContributionOnly] = useState(false);
 

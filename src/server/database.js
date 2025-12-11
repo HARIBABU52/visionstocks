@@ -47,6 +47,31 @@ function insertNifty50Points(year, day, time, month, dayNumber, data) {
 
 // Fetch data from API and store it in the database
 function fetchAndStoreNifty50Points() {
+  // Convert current time to IST (Indian Standard Time)
+  const now = new Date();
+  const istTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const dayOfWeek = istTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 5 = Friday, 6 = Saturday
+  const currentHour = istTime.getHours();
+  const currentMinute = istTime.getMinutes();
+  const currentTimeInMinutes = currentHour * 60 + currentMinute;
+  
+  // Market hours: Monday to Friday, 8:30 AM to 4:00 PM IST
+  const marketOpenTime = 8 * 60 + 30; // 8:30 AM = 510 minutes
+  const marketCloseTime = 16 * 60; // 4:00 PM = 960 minutes
+  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5; // Monday to Friday
+  const isMarketHours = currentTimeInMinutes >= marketOpenTime && currentTimeInMinutes < marketCloseTime;
+
+  // Stop inserting if not a weekday or outside market hours
+  if (!isWeekday) {
+    console.log('Market closed. Weekend detected. Data insertion skipped.');
+    return;
+  }
+
+  if (!isMarketHours) {
+    console.log('Market closed. Outside trading hours (8:30 AM - 4:00 PM IST). Data insertion skipped.');
+    return;
+  }
+
   const localurl = 'http://localhost:5000';
   axios
     .get(`${localurl}/api/nifty50points`)
