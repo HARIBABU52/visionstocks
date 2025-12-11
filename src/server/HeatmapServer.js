@@ -37,6 +37,49 @@ async function refreshNseCookie() {
       const explicit = process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH;
       if (explicit && fs.existsSync(explicit)) return explicit;
 
+      // 1) If puppeteer package has an executablePath() helper, prefer that (node-installed chromium)
+      try {
+        if (puppeteer && typeof puppeteer.executablePath === 'function') {
+          const pExec = puppeteer.executablePath();
+          if (pExec && fs.existsSync(pExec)) return pExec;
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      // 2) Look for puppeteer's local chromium inside node_modules (common when build/install added browsers)
+      try {
+        const localChromiumBase = path.join(process.cwd(), 'node_modules', 'puppeteer', '.local-chromium');
+        const candidates = ['chrome', 'chrome.exe', 'chromium', 'chromium-browser', 'chrome-win64'];
+        if (fs.existsSync(localChromiumBase)) {
+          const entries = fs.readdirSync(localChromiumBase);
+          for (const e of entries) {
+            const full = path.join(localChromiumBase, e);
+            if (!fs.existsSync(full)) continue;
+            // search one level and a couple common subpaths
+            const tryPaths = [full, path.join(full, 'chrome'), path.join(full, 'chrome-win64')];
+            for (const tp of tryPaths) {
+              if (!fs.existsSync(tp)) continue;
+              for (const cand of candidates) {
+                const exe = path.join(tp, cand);
+                if (fs.existsSync(exe)) return exe;
+              }
+              // also inspect files inside
+              const subEntries = fs.readdirSync(tp).map(s => path.join(tp, s));
+              for (const sfull of subEntries) {
+                for (const cand2 of candidates) {
+                  const ex = path.join(sfull, cand2);
+                  if (fs.existsSync(ex)) return ex;
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      // 3) Fall back to user/cache locations (Render, HOME, USERPROFILE)
       const cacheDirs = [];
       if (process.env.PUPPETEER_CACHE_DIR) cacheDirs.push(process.env.PUPPETEER_CACHE_DIR);
       // Render's default cache path
@@ -45,8 +88,7 @@ async function refreshNseCookie() {
       if (process.env.HOME) cacheDirs.push(path.join(process.env.HOME, '.cache', 'puppeteer'));
       if (process.env.USERPROFILE) cacheDirs.push(path.join(process.env.USERPROFILE, '.cache', 'puppeteer'));
 
-      const candidates = ['chrome', 'chrome.exe', 'chromium', 'chromium-browser'];
-
+      const fallbackCandidates = ['chrome', 'chrome.exe', 'chromium', 'chromium-browser'];
       for (const base of cacheDirs) {
         try {
           if (!fs.existsSync(base)) continue;
@@ -56,7 +98,7 @@ async function refreshNseCookie() {
             // search one level deep for executables
             if (fs.existsSync(full) && fs.statSync(full).isDirectory()) {
               // look for known executable names inside
-              for (const cand of candidates) {
+              for (const cand of fallbackCandidates) {
                 const exe1 = path.join(full, cand);
                 const exe2 = path.join(full, 'chrome-' + cand);
                 const exe3 = path.join(full, 'chrome', cand);
@@ -68,7 +110,7 @@ async function refreshNseCookie() {
                 // recursive one more level
                 const sub = fs.readdirSync(full).map(s => path.join(full, s));
                 for (const sfull of sub) {
-                  for (const cand2 of candidates) {
+                  for (const cand2 of fallbackCandidates) {
                     const ex = path.join(sfull, cand2);
                     if (fs.existsSync(ex)) return ex;
                   }
@@ -97,7 +139,9 @@ async function refreshNseCookie() {
       // Attempt a one-time runtime install of Puppeteer's Chrome if not found
       try {
         console.log('No Chrome executable detected. Attempting runtime install of Puppeteer browsers...');
-        require('child_process').execSync('npx puppeteer browsers install chrome', { stdio: 'inherit' });
+        // Use dynamic import for child_process in ESM context
+        const { execSync } = await import('child_process');
+        execSync('npx puppeteer browsers install chrome', { stdio: 'inherit' });
         const detectedAfter = findChromeExecutable();
         if (detectedAfter) {
           puppeteerConfig.executablePath = detectedAfter;
@@ -105,6 +149,22 @@ async function refreshNseCookie() {
           console.log('Puppeteer detected Chrome after runtime install at', detectedAfter);
         } else {
           console.warn('Runtime install completed but Chrome executable still not detected.');
+          // Final fallback: install chrome-launcher package and try to use it
+          try {
+            console.log('Final fallback: installing chrome-launcher npm package...');
+            execSync('npm install chrome-launcher', { stdio: 'inherit' });
+            // Try to launch Chrome via chrome-launcher to get the executable path
+            const chromeLauncher = (await import('chrome-launcher')).default;
+            const launchResult = await chromeLauncher.launch({ chromeFlags: ['--headless', '--no-sandbox'] });
+            if (launchResult && launchResult.executablePath) {
+              puppeteerConfig.executablePath = launchResult.executablePath;
+              detectedChromePath = launchResult.executablePath;
+              console.log('Chrome launcher found Chrome at:', launchResult.executablePath);
+              await chromeLauncher.kill(launchResult.pid);
+            }
+          } catch (fallbackErr) {
+            console.warn('Chrome launcher fallback failed:', fallbackErr && fallbackErr.message);
+          }
         }
       } catch (e) {
         console.warn('Runtime Puppeteer browser install failed:', e && e.message);
