@@ -2,12 +2,20 @@ import express from "express";
 import axios from "axios";
 import cors from "cors";
 import puppeteer from "puppeteer";
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+// __dirname is not defined in ES modules; derive it from import.meta.url
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 //import { fetchAndStoreNifty50Points } from './database.js';
 
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
+
 
 let cookieval = "";
 
@@ -259,6 +267,20 @@ app.get("/api/nifty50points", async (_, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Serve React build (production) if available
+const buildPath = path.resolve(__dirname, "../../build");
+if (fs.existsSync(buildPath)) {
+  app.use(express.static(buildPath));
+  // Fallback: serve index.html for client-side routing
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+      res.sendFile(path.join(buildPath, 'index.html'));
+    } else {
+      next();
+    }
+  });
+}
 
 // Start the server only after the cookie is set and set up periodic refresh
 (async () => {
