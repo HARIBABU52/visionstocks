@@ -29,6 +29,67 @@ async function refreshNseCookie() {
       timeout: 30000 // 30 seconds
     };
 
+    // Try to locate a Chrome/Chromium executable automatically.
+    function findChromeExecutable() {
+      // Allow explicit override via env
+      const explicit = process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH;
+      if (explicit && fs.existsSync(explicit)) return explicit;
+
+      const cacheDirs = [];
+      if (process.env.PUPPETEER_CACHE_DIR) cacheDirs.push(process.env.PUPPETEER_CACHE_DIR);
+      // Render's default cache path
+      cacheDirs.push('/opt/render/.cache/puppeteer');
+      // Local user cache fallback
+      if (process.env.HOME) cacheDirs.push(path.join(process.env.HOME, '.cache', 'puppeteer'));
+      if (process.env.USERPROFILE) cacheDirs.push(path.join(process.env.USERPROFILE, '.cache', 'puppeteer'));
+
+      const candidates = ['chrome', 'chrome.exe', 'chromium', 'chromium-browser'];
+
+      for (const base of cacheDirs) {
+        try {
+          if (!fs.existsSync(base)) continue;
+          const entries = fs.readdirSync(base);
+          for (const e of entries) {
+            const full = path.join(base, e);
+            // search one level deep for executables
+            if (fs.existsSync(full) && fs.statSync(full).isDirectory()) {
+              // look for known executable names inside
+              for (const cand of candidates) {
+                const exe1 = path.join(full, cand);
+                const exe2 = path.join(full, 'chrome-' + cand);
+                const exe3 = path.join(full, 'chrome', cand);
+                const exe4 = path.join(full, 'chrome-win64', cand);
+                if (fs.existsSync(exe1)) return exe1;
+                if (fs.existsSync(exe2)) return exe2;
+                if (fs.existsSync(exe3)) return exe3;
+                if (fs.existsSync(exe4)) return exe4;
+                // recursive one more level
+                const sub = fs.readdirSync(full).map(s => path.join(full, s));
+                for (const sfull of sub) {
+                  for (const cand2 of candidates) {
+                    const ex = path.join(sfull, cand2);
+                    if (fs.existsSync(ex)) return ex;
+                  }
+                }
+              }
+            }
+          }
+        } catch (e) {
+          // ignore permission errors
+        }
+      }
+      return null;
+    }
+
+    const detected = findChromeExecutable();
+    if (detected) {
+      puppeteerConfig.executablePath = detected;
+      console.log('Puppeteer will use executable at', detected);
+    } else if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      puppeteerConfig.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      console.log('Using PUPPETEER_EXECUTABLE_PATH from env:', process.env.PUPPETEER_EXECUTABLE_PATH);
+    }
+
     // On Render (and similar environments), explicitly set the cache directory
     if (process.env.RENDER === 'true' || process.env.NODE_ENV === 'production') {
       puppeteerConfig.cacheDirectory = '/opt/render/.cache/puppeteer';
