@@ -19,11 +19,11 @@
     "react-router-dom": "^7.6.1",
     "react-scripts": "5.0.1",
     "sqlite3": "^5.1.7",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "concurrently": "^9.2.1"
   },
   "scripts": {
-    "start": "node src/server/HeatmapServer.js && npm run dbserver-delayed"
-,
+    "start": "concurrently \"npm run server\" \"npm run dbserver-delayed\"",
     "dev": "concurrently \"npm run react\" \"npm run server\" \"npm run dbserver-delayed\"",
     "prebuild": "node -e \"const fs=require('fs'); if(!fs.existsSync('node_modules') || !fs.existsSync('node_modules/react-scripts')){ require('child_process').execSync('npm ci', {stdio:'inherit'}); } else { console.log('node_modules and react-scripts present, skipping npm ci'); }\"",
     "react": "react-scripts start",
@@ -51,8 +51,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.1"
   }
 }
